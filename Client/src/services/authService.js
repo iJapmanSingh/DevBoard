@@ -1,21 +1,11 @@
-import axios from "axios";
-
-const BASE_URL = "http://localhost:8000/api/auth";
+import api from "./api";
 
 export async function signup(data) {
-    const response = await axios.post(
-        `${BASE_URL}/signup`,
-        data
-    );
-
+    const response = await api.post("/auth/signup", data);
     return response.data;
 }
 
 export async function login(data) {
-    const response = await axios.post(
-        `${BASE_URL}/login`,
-        data
-    );
-
+    const response = await api.post("/auth/login", data);
     return response.data;
 }
