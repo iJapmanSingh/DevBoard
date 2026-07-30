@@ -1,27 +1,61 @@
-import axios from "axios";
+import { GraphQLClient, gql } from "graphql-request";
+
+const client = new GraphQLClient("https://leetcode.com/graphql");
+
+const query = gql`
+query getUserProfile($username: String!) {
+  matchedUser(username: $username) {
+    submitStats {
+      acSubmissionNum {
+        difficulty
+        count
+      }
+    }
+
+    profile {
+      ranking
+    }
+  }
+
+  userContestRanking(username: $username) {
+    rating
+  }
+}
+`;
 
 export async function getLeetCodeData(username) {
     try {
 
-        const response = await axios.get(
-            `https://alfa-leetcode-api.onrender.com/${username}/solved`
-        );
+        const data = await client.request(query, {
+            username,
+        });
+
+        const stats =
+            data?.matchedUser?.submitStats?.acSubmissionNum || [];
+
+        const getCount = (difficulty) => {
+            const obj = stats.find(
+                (x) => x.difficulty === difficulty
+            );
+            return obj ? obj.count : 0;
+        };
 
         return {
             username,
-            solved: response.data.solvedProblem || 0,
-            easy: response.data.easySolved || 0,
-            medium: response.data.mediumSolved || 0,
-            hard: response.data.hardSolved || 0,
-            rating: response.data.contestRating || 0,
+            solved: getCount("All"),
+            easy: getCount("Easy"),
+            medium: getCount("Medium"),
+            hard: getCount("Hard"),
+            rating: Math.round(
+                data?.userContestRanking?.rating || 0
+            ),
         };
 
     } catch (error) {
 
-        console.log(
-            "LeetCode API Error:",
-            error.response?.status,
-            error.response?.data
+        console.error(
+            "LeetCode GraphQL Error:",
+            error.response?.errors || error.message
         );
 
         return {
