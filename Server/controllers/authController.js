@@ -110,8 +110,6 @@ export async function getProfile(req, res) {
     }
 }
 
-console.log("BODY:", req.body);
-console.log("USER:", req.user);
 
 export async function updateProfile(req, res) {
     try {
