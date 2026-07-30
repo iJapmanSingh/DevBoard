@@ -110,8 +110,13 @@ export async function getProfile(req, res) {
     }
 }
 
+console.log("BODY:", req.body);
+console.log("USER:", req.user);
+
 export async function updateProfile(req, res) {
     try {
+        console.log("BODY:", req.body);
+        console.log("USER:", req.user);
 
         const {
             name,
@@ -122,6 +127,13 @@ export async function updateProfile(req, res) {
 
         const user = await User.findById(req.user.id);
 
+        if (!user) {
+            return res.status(404).json({
+                success: false,
+                message: "User not found",
+            });
+        }
+
         user.name = name;
         user.codeforcesHandle = codeforcesHandle;
         user.leetcodeUsername = leetcodeUsername;
@@ -129,16 +141,19 @@ export async function updateProfile(req, res) {
 
         await user.save();
 
-        res.status(200).json({
+        return res.status(200).json({
             success: true,
             user,
         });
 
     } catch (error) {
+        console.error("UPDATE PROFILE ERROR:");
+        console.error(error);
+        console.error(error.stack);
 
-        res.status(500).json({
+        return res.status(500).json({
+            success: false,
             message: error.message,
         });
-
     }
 }
